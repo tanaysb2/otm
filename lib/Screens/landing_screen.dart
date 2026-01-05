@@ -8,7 +8,6 @@ import 'package:jk_otm/Reusable%20components/text_field.dart';
 import 'package:jk_otm/main.dart';
 import 'package:jk_otm/models/user_role_model.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -30,7 +29,6 @@ class _LandingScreenState extends State<LandingScreen> {
     setState(() {
       _isLoading = true;
     });
-
     Provider.of<AuthProvider>(context, listen: false)
         .getRolesAndModules(context)
         .then((value) {
@@ -68,10 +66,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Logo
-                      Image.asset(
-                        "assets/jklogtrans.png",
-                        width: 300.w,
-                      ),
+                      Image.asset("assets/jklogtrans.png", width: 300.w),
 
                       // Home Icon and User Dropdown
                       Row(

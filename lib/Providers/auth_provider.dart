@@ -181,7 +181,29 @@ class AuthProvider with ChangeNotifier {
 
         user = prefs.getString('usrid') ?? "";
 
-        userRoleResponse = txUserRoleResponse;
+        // Filter to show only items with code "TP"
+        final filteredRoles =
+            txUserRoleResponse.data.where((role) => role.code == "TP").toList();
+
+        // Filter modules within TP role to only show OPENIND, ASGNTRK, and ALLIND
+        final allowedModuleCodes = ["OPENIND", "ASGNTRK", "ALLIND"];
+        final filteredData = filteredRoles.map((role) {
+          final filteredModules = role.modules
+              .where((module) => allowedModuleCodes.contains(module.code))
+              .toList();
+
+          return UserRoleModel(
+            code: role.code,
+            description: role.description,
+            modules: filteredModules,
+          );
+        }).toList();
+
+        userRoleResponse = UserRoleResponse(
+          success: txUserRoleResponse.success,
+          message: txUserRoleResponse.message,
+          data: filteredData,
+        );
         notifyListeners();
       } catch (e) {
         log('❌ Error parsing user roles: $e');

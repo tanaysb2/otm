@@ -34,10 +34,10 @@ Future<Map<String, dynamic>> makeRequest({
 
     var request = Request(method, Uri.parse(url));
 
-    log("${headers['Cookie']} checking output");
+    // log("${headers['Cookie']} checking output");
 
     log('URL: $url');
-    log('Method: $method');
+    // log('Method: $method');
     request.headers.addAll(headers);
 
     if (body != null && body.isNotEmpty) {

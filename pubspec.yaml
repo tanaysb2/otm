@@ -53,6 +53,7 @@ dependencies:
   dropdown_search: 5.0.6
 
   cupertino_icons: ^1.0.2
+  multi_dropdown: ^3.0.1
 
 dev_dependencies:
   flutter_test:

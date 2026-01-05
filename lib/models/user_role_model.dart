@@ -57,6 +57,8 @@ class UserRoleModel {
         'description': description,
         'modules': modules.map((e) => e.toJson()).toList(),
       };
+
+  
 }
 
 class UserRoleModule {

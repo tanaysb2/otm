@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:jk_otm/Providers/transporter_provider.dart';
 import 'package:jk_otm/Reusable%20components/text_field.dart';
+import 'package:jk_otm/Screens/Transporter/all_indent_screen.dart';
+import 'package:jk_otm/Screens/Transporter/assign_truck_screen.dart';
 import 'package:jk_otm/Screens/Transporter/open_indent_screen.dart';
 import 'package:jk_otm/utils/image_icon_selector.dart';
+import 'package:provider/provider.dart';
 
-class HomepageGrid extends StatelessWidget {
+class HomepageGrid extends StatefulWidget {
   final String icon;
   final String description;
   final String summary;
@@ -18,14 +22,46 @@ class HomepageGrid extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HomepageGrid> createState() => _HomepageGridState();
+}
+
+class _HomepageGridState extends State<HomepageGrid> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<TransporterProvider>(context, listen: false)
+        .fetchSourceLocations(context)
+        .then((value) {
+      Provider.of<TransporterProvider>(context, listen: false)
+          .fetchDestinationLoc(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) {
-            return ShipmentListScreen();
-          },
-        ));
+        if (widget.description == "OPEN INDENT") {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return ShipmentListScreen();
+            },
+          ));
+        } else if (widget.description == "ASSIGN TRUCK") {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return AssignTruckListScreen();
+            },
+          ));
+        } else if (widget.description == "ALL INDENT") {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return AllIndentListScreen();
+            },
+          ));
+        } else {
+          
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -38,11 +74,11 @@ class HomepageGrid extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                  child:
-                      SvgPicture.asset(ImageIconSelector.getAssetPath(icon))),
+                  child: SvgPicture.asset(
+                      ImageIconSelector.getAssetPath(widget.icon))),
               SizedBox(height: 25.h),
               Text(
-                description,
+                widget.description,
                 textAlign: TextAlign.center,
                 style: textFieldStyle(
                   fontSize: 25.sp,
@@ -53,7 +89,7 @@ class HomepageGrid extends StatelessWidget {
               ),
               SizedBox(height: 12.h),
               Text(
-                summary,
+                widget.summary,
                 textAlign: TextAlign.center,
                 maxLines: 3,
                 style: textFieldStyle(

@@ -554,10 +554,8 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           ),
 
         if (_isLoading)
-          Positioned.fill(
-            child: Center(
-              child: LoaderTransparent(color: Colors.white),
-            ),
+          Center(
+            child: LoaderTransparent(color: Colors.white),
           ),
       ],
     );
@@ -801,158 +799,175 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                         }).toList();
                         // Close the current dialog
                         Navigator.of(dialogContext).pop();
-                        // Call the API
-                        final response = await providerTransporter
-                            .massUpdateOpenDomesticIndents(
-                          context,
-                          updates: updates,
-                        );
-                        if (response == true) {
-                          // Refresh the list after successful update
-                          // Show dialog with all selected shipments
-                          showDialog(
-                            context: context,
-                            builder: (dialogContext) {
-                              return AlertDialog(
-                                titlePadding: EdgeInsets.symmetric(
-                                    horizontal: 16.w, vertical: 20.h),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                ),
-                                actionsPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                ),
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Tender updated successfully',
-                                      style: textFieldStyle(
-                                        fontSize: 32.sp,
-                                        weight: FontWeight.w600,
+
+                        // Set loading to true before API call
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        try {
+                          // Call the API
+                          final response = await providerTransporter
+                              .massUpdateOpenDomesticIndents(
+                            context,
+                            updates: updates,
+                          );
+                          if (response == true) {
+                            // Refresh the list after successful update
+                            // Show dialog with all selected shipments
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) {
+                                return AlertDialog(
+                                  titlePadding: EdgeInsets.symmetric(
+                                      horizontal: 16.w, vertical: 20.h),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  actionsPadding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Tender updated successfully',
+                                        style: textFieldStyle(
+                                          fontSize: 32.sp,
+                                          weight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () =>
+                                            Navigator.of(dialogContext).pop(),
+                                        child: Icon(Icons.close, size: 30.sp),
+                                      ),
+                                    ],
+                                  ),
+                                  content: SizedBox(
+                                    width: double.maxFinite,
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Shipments:',
+                                            style: textFieldStyle(
+                                              fontSize: 30.sp,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 8.h),
+                                          ...(providerTransporter
+                                              .openIndentsResponseForMassUpdate!
+                                              .data
+                                              .map((e) => Card(
+                                                    elevation: 4,
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 19.h,
+                                                              horizontal: 19.w),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                e.shipment,
+                                                                style:
+                                                                    textFieldStyle(
+                                                                  fontSize:
+                                                                      28.sp,
+                                                                  weight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                  height: 8.h),
+                                                              Text(
+                                                                e.postMsg,
+                                                                style:
+                                                                    textFieldStyle(
+                                                                  fontSize:
+                                                                      22.sp,
+                                                                  weight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Spacer(),
+                                                          e.postStatus == "1"
+                                                              ? SvgPicture
+                                                                  .asset(
+                                                                  "assets/greentick.svg",
+                                                                  height: 30.h,
+                                                                  width: 30.w,
+                                                                  color: Colors
+                                                                      .green,
+                                                                  fit: BoxFit
+                                                                      .fill,
+                                                                )
+                                                              : SvgPicture
+                                                                  .asset(
+                                                                  "assets/warning.svg",
+                                                                  height: 30.h,
+                                                                  width: 30.w,
+                                                                  color: Colors
+                                                                      .amber
+                                                                      .shade700,
+                                                                  fit: BoxFit
+                                                                      .fill,
+                                                                )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ))).toList()
+                                        ],
                                       ),
                                     ),
-                                    InkWell(
-                                      onTap: () =>
-                                          Navigator.of(dialogContext).pop(),
-                                      child: Icon(Icons.close, size: 30.sp),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                      },
+                                      child: Text(
+                                        'OK',
+                                        style: textFieldStyle(
+                                          fontSize: 22.sp,
+                                          weight: FontWeight.w600,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
                                     ),
                                   ],
-                                ),
-                                content: SizedBox(
-                                  width: double.maxFinite,
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Shipments:',
-                                          style: textFieldStyle(
-                                            fontSize: 30.sp,
-                                            weight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8.h),
-                                        ...(providerTransporter
-                                            .openIndentsResponseForMassUpdate!
-                                            .data
-                                            .map((e) => Card(
-                                                  elevation: 4,
-                                                  child: Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 19.h,
-                                                            horizontal: 19.w),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              e.shipment,
-                                                              style:
-                                                                  textFieldStyle(
-                                                                fontSize: 28.sp,
-                                                                weight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                height: 8.h),
-                                                            Text(
-                                                              e.postMsg,
-                                                              style:
-                                                                  textFieldStyle(
-                                                                fontSize: 22.sp,
-                                                                weight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Spacer(),
-                                                        e.postStatus == "1"
-                                                            ? SvgPicture.asset(
-                                                                "assets/greentick.svg",
-                                                                height: 30.h,
-                                                                width: 30.w,
-                                                                color: Colors
-                                                                    .green,
-                                                                fit:
-                                                                    BoxFit.fill,
-                                                              )
-                                                            : SvgPicture.asset(
-                                                                "assets/warning.svg",
-                                                                height: 30.h,
-                                                                width: 30.w,
-                                                                color: Colors
-                                                                    .amber
-                                                                    .shade700,
-                                                                fit:
-                                                                    BoxFit.fill,
-                                                              )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ))).toList()
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(dialogContext).pop();
-                                    },
-                                    child: Text(
-                                      'OK',
-                                      style: textFieldStyle(
-                                        fontSize: 22.sp,
-                                        weight: FontWeight.w600,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                                );
+                              },
+                            );
+                          }
+                        } finally {
+                          // Set loading to false after API call completes
+                          setState(() {
+                            _isLoading = false;
+                          });
                         }
                       },
                       child: Text(

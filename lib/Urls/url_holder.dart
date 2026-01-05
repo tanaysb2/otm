@@ -3,7 +3,9 @@ class UrlHolderLoan {
 //// quality or development
   // static const baseUrl = "http://10.10.10.129:7000/api/";
   //// production
-  static const baseUrl = "https://etms-dev.jktyre.co.in/api/";
+  // static const baseUrl = "https://etms-dev.jktyre.co.in/api/";
+  static const baseUrl = "https://tms.jktyre.co.in/api/";
+  //https://tms.jktyre.co.in/
   // static const baseUrl = "https://82a0-202-144-62-131.ngrok-free.app//api/";
 //
   static const login = "v1/user/login";
@@ -26,4 +28,23 @@ class UrlHolderLoan {
   /// ]
   static const openDomesticIndentsMassUpdate =
       "v1/indent/domestic/indents/open/massupdate";
+
+  /// Fetch approved domestic indents
+  static const approvedDomesticIndents = "v1/indent/domestic/indents/approved";
+
+  /// Fetch master truck data
+  static const masterTruck = "v1/master/truck";
+  static const masterLicenseNumber = "v1/master/driver";
+  static const masterTransporter = "v1/master/transporter/";
+
+  /// Assign truck and driver to domestic indents
+  static const assignTruckDriver =
+      "v1/indent/domestic/indents/assigntruckdriver";
+
+  /// Fetch source locations
+  static const sourceLocations = "v1/user/auth/locations/source";
+  static const destinationLocations = "v1/user/auth/locations/destination";
+
+  /// Fetch all indents with search filters
+  static const allDomesticIndents = "v1/indent/domestic/indents/all";
 }
