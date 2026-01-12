@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart';
 import 'package:jk_otm/utils/api_interface.dart';
 import 'package:jk_otm/Screens/auth%20screens/auth_screen.dart';
@@ -55,14 +56,29 @@ class AuthProvider with ChangeNotifier {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       log('responseBody $responseBody');
-      log('responseBody ${responseBody["data"]["userId"]}');
 
-      if (responseBody['data']['userId'] != null) {
+      // Check if the response indicates failure
+      if (responseBody['success'] == false) {
+        String errorMessage = responseBody['message'] ?? 'Login failed';
+        EasyLoading.showError(errorMessage, duration: Duration(seconds: 3));
+        notifyListeners();
+        return false;
+      }
+
+      // Check if userId exists in data
+      if (responseBody['data'] != null &&
+          responseBody['data']['userId'] != null) {
+        log('responseBody ${responseBody["data"]["userId"]}');
         await prefs.setString('usrid', responseBody["data"]['userId']);
         user = responseBody["data"]["userId"];
+        notifyListeners();
+        return true;
+      } else {
+        String errorMessage = responseBody['message'] ?? 'Invalid user data';
+        EasyLoading.showError(errorMessage, duration: Duration(seconds: 3));
+        notifyListeners();
+        return false;
       }
-      notifyListeners();
-      return true;
     } else if (response.statusCode == 401) {
       // Clear cookies and go to login screen
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -72,6 +88,16 @@ class AuthProvider with ChangeNotifier {
       await prefs.remove('usrid');
       notifyListeners();
 
+      // Try to get error message from response body
+      try {
+        var responseBody = jsonDecode(response.body);
+        String errorMessage = responseBody['message'] ?? 'Unauthorized access';
+        EasyLoading.showError(errorMessage, duration: Duration(seconds: 3));
+      } catch (e) {
+        EasyLoading.showError('Unauthorized access',
+            duration: Duration(seconds: 3));
+      }
+
       Navigator.of(context).push(MaterialPageRoute(
         builder: (context) {
           return AuthScreen();
@@ -80,7 +106,15 @@ class AuthProvider with ChangeNotifier {
 
       return false;
     } else if (response.statusCode == 403) {
-      // Call getRolesAndModules and go to LandingScreen
+      // Try to get error message from response body
+      try {
+        var responseBody = jsonDecode(response.body);
+        String errorMessage = responseBody['message'] ?? 'Access forbidden';
+        EasyLoading.showError(errorMessage, duration: Duration(seconds: 3));
+      } catch (e) {
+        EasyLoading.showError('Access forbidden',
+            duration: Duration(seconds: 3));
+      }
 
       notifyListeners();
 
@@ -92,6 +126,16 @@ class AuthProvider with ChangeNotifier {
 
       return false;
     } else {
+      // Handle other error status codes
+      try {
+        var responseBody = jsonDecode(response.body);
+        String errorMessage = responseBody['message'] ?? 'An error occurred';
+        EasyLoading.showToast(errorMessage,
+            maskType: EasyLoadingMaskType.black);
+      } catch (e) {
+        EasyLoading.showToast('An error occurred. Please try again.',
+            maskType: EasyLoadingMaskType.black);
+      }
       return false;
     }
   }

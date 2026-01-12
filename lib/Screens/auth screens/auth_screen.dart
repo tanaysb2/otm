@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +9,6 @@ import 'package:jk_otm/Screens/landing_screen.dart';
 import 'package:jk_otm/main.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vpn_connection_detector/vpn_connection_detector.dart';
 
 import '../../Providers/auth_provider.dart';
 
@@ -27,10 +25,8 @@ class _AuthScreenState extends State<AuthScreen> {
   String otp = "";
   var focusNode = FocusNode();
   bool enter = false;
-  late StreamSubscription<ConnectivityResult> subscription;
 
   bool errorShow = false;
-  final vpnDetector = VpnConnectionDetector();
 
   @override
   void initState() {
@@ -125,7 +121,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   //       Color.fromARGB(255, 143, 182, 240),
                   //       Color.fromARGB(255, 3, 38, 91),
                   //       Color.fromARGB(255, 3, 38, 91),
-                  //     ]),
+                  //     ]),  
                   image: DecorationImage(
                     image: AssetImage("assets/backgroundimage.jpg"), // or .jpg
                     fit: BoxFit.cover,
@@ -248,7 +244,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                       borderSide: const BorderSide(
-                                    color: Colors.white, width: 2),
+                                          color: Colors.white, width: 2),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10.0),
@@ -266,7 +262,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         fontSize: 28.sp)),
                                 keyboardType: TextInputType.name,
                                 textInputAction: TextInputAction.next,
-                    ),
+                              ),
                             ),
                             SizedBox(height: 40.h),
                             SizedBox(
