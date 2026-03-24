@@ -3,8 +3,8 @@ class UrlHolderLoan {
 //// quality or development
   // static const baseUrl = "http://10.10.10.129:7000/api/";
   //// production
-  // static const baseUrl = "https://etms-dev.jktyre.co.in/api/";
-  static const baseUrl = "https://tms.jktyre.co.in/api/";
+  static const baseUrl = "https://etms-dev.jktyre.co.in/api/";
+  // static const baseUrl = "https://tms.jktyre.co.in/api/";
   //https://tms.jktyre.co.in/
   // static const baseUrl = "https://82a0-202-144-62-131.ngrok-free.app//api/";
 //
@@ -47,4 +47,20 @@ class UrlHolderLoan {
 
   /// Fetch all indents with search filters
   static const allDomesticIndents = "v1/indent/domestic/indents/all";
+
+  /// Tertiary: service provider depots
+  static const tertiaryServiceProviderDepots =
+      "v1/tertiary/serviceprovider/depots";
+
+  /// Tertiary: service provider active trips (query: location)
+  static const tertiaryServiceProviderActiveTrips =
+      "v1/tertiary/serviceprovider/trips/active";
+
+  /// Tertiary: service provider all trips (query: location)
+  static const tertiaryServiceProviderAllTrips =
+      "v1/tertiary/serviceprovider/trips/all";
+
+  /// Tertiary: single trip by id (query: tripId)
+  static const tertiaryServiceProviderTrip =
+      "v1/tertiary/serviceprovider/trips/trip";
 }

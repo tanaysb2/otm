@@ -32,6 +32,7 @@ class ImageIconSelector {
     'COSDINV': 'assets/consolidated_Invoices.svg',
     'ALLIND': 'assets/all-indents.svg',
     'ALLSHIPTR': 'assets/all-indents.svg',
+    'TD': 'assets/orders.svg',
   };
 
   /// Default asset path when code is not found

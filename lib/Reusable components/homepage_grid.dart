@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:jk_otm/Providers/transporter_provider.dart';
 import 'package:jk_otm/Reusable%20components/text_field.dart';
+import 'package:jk_otm/Screens/Tertiary/trip_detail_screen.dart';
 import 'package:jk_otm/Screens/Transporter/all_indent_screen.dart';
 import 'package:jk_otm/Screens/Transporter/assign_truck_screen.dart';
 import 'package:jk_otm/Screens/Transporter/open_indent_screen.dart';
@@ -59,8 +60,14 @@ class _HomepageGridState extends State<HomepageGrid> {
               return AllIndentListScreen();
             },
           ));
-        } else {
-          
+        }  else if (widget.description == "TRIP DETAILS") {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return RouteScreen();
+            },
+          ));
+        }else{
+
         }
       },
       child: Card(

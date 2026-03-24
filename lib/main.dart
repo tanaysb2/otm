@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jk_otm/Providers/auth_provider.dart';
+import 'package:jk_otm/Providers/tertiary_provider.dart';
 import 'package:jk_otm/Providers/transporter_provider.dart';
 import 'package:jk_otm/Screens/auth%20screens/auth_screen.dart';
 import 'package:jk_otm/Screens/landing_screen.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => TransporterProvider()),
+        ChangeNotifierProvider(create: (context) => TertiaryProvider()),
       ],
       child: ScreenUtilInit(
         builder: (context, child) {

@@ -34,19 +34,19 @@ dependencies:
   flutter_easyloading:
   provider:
   dotted_border:
-  vibration:
+  vibration: ^3.1.0
   audioplayers:
   easy_sticky_header:
   percent_indicator:
   custom_tooltip:
   intl:
   flutter_spinkit: 5.1.0
-  shared_preferences:
+  shared_preferences: ^2.5.0
   el_tooltip:
   flutter_screenutil:
   http:
   flutter_svg:
-  path_provider:
+  path_provider: ^2.1.4
   dropdown_search: 5.0.6
 
   cupertino_icons: ^1.0.2
