@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:jk_otm/Urls/url_holder.dart';
 import 'package:jk_otm/models/active_trips_model.dart';
@@ -49,6 +51,7 @@ class TertiaryProvider with ChangeNotifier {
         );
         depotsResponse = parsed;
         depots = parsed.data ?? [];
+        log('depots: ${depots.length}');
         notifyListeners();
         return true;
       } else {

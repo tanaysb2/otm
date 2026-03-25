@@ -14,12 +14,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WidgetsFlutterBinding.ensureInitialized();
-
-  runApp(MyApp());
-  SystemChrome.setPreferredOrientations(
+  await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   configLoading();
+  runApp(MyApp());
 }
 
 void configLoading() {
@@ -97,7 +95,10 @@ class _NavigationState extends State<NavigationScreen> {
   @override
   void initState() {
     super.initState();
-    navigationPage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      navigationPage();
+    });
   }
 
   @override
@@ -105,4 +106,3 @@ class _NavigationState extends State<NavigationScreen> {
     return Container();
   }
 }
-

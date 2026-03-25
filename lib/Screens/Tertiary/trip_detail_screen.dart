@@ -21,8 +21,9 @@ class RouteScreen extends StatefulWidget {
   State<RouteScreen> createState() => _ShipmentListScreenState();
 }
 
-class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProviderStateMixin {
-    TabController? _tabController;
+class _ShipmentListScreenState extends State<RouteScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController;
   late ScrollController _controller;
   bool _isLoading = false;
   bool showDropdown = false;
@@ -30,20 +31,21 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
 
   String? selectedAction;
 
-   int indexx = 0;
+  int indexx = 0;
   bool errorShow = false;
   int tab = 1;
 
   @override
   void initState() {
     super.initState();
-     _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _controller = ScrollController();
     setState(() {
       _isLoading = true;
     });
     Provider.of<TertiaryProvider>(context, listen: false)
-        .fetchTertiaryServiceProviderDepots(context).then((_) {
+        .fetchTertiaryServiceProviderDepots(context)
+        .then((_) {
       final tp = Provider.of<TertiaryProvider>(context, listen: false);
       String? firstLocCd;
       for (final RouteTertiaryModel d in tp.depots) {
@@ -59,17 +61,20 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
         });
       }
       final loc = selectedAction ?? '';
-       tp.fetchTertiaryServiceProviderActiveTrips(context, location: loc).then((value){
-
-       tp.fetchTertiaryServiceProviderAllTrips(context, location: loc).then((value){
- if (mounted) {
-        setState(() {
-          _isLoading = false;
+      tp
+          .fetchTertiaryServiceProviderActiveTrips(context, location: "1111")
+          .then((value) {
+        tp
+            .fetchTertiaryServiceProviderAllTrips(context, location: "1111")
+            .then((value) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         });
-      }
-       });
-       });
-    }) ;
+      });
+    });
   }
 
   @override
@@ -180,11 +185,10 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
                             horizontal: 14.w, vertical: 5.h),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color:  Colors.grey.shade300,
+                            color: Colors.grey.shade300,
                           ),
                           borderRadius: BorderRadius.circular(6),
-                          color:  Colors.white
-                             ,
+                          color: Colors.white,
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
@@ -231,7 +235,8 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
                             items: providerTransporter.depots
                                 .where((d) =>
                                     d.locCd != null && d.locCd!.isNotEmpty)
-                                .map<DropdownMenuItem<String>>((RouteTertiaryModel d) {
+                                .map<DropdownMenuItem<String>>(
+                                    (RouteTertiaryModel d) {
                               final label =
                                   (d.locName != null && d.locName!.isNotEmpty)
                                       ? d.locName!
@@ -248,18 +253,18 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
                                 ),
                               );
                             }).toList(),
-                            onChanged: (value) async{
+                            onChanged: (value) async {
                               log('Selected Location (LocCd): $value');
                               setState(() {
                                 selectedAction = value;
                               });
                               if (value != null) {
-                              await  Provider.of<TertiaryProvider>(context,
+                                await Provider.of<TertiaryProvider>(context,
                                         listen: false)
                                     .fetchTertiaryServiceProviderActiveTrips(
                                         context,
                                         location: value);
-                               await Provider.of<TertiaryProvider>(context,
+                                await Provider.of<TertiaryProvider>(context,
                                         listen: false)
                                     .fetchTertiaryServiceProviderAllTrips(
                                         context,
@@ -271,7 +276,6 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
                       ),
                     ),
                     SizedBox(width: 30.w),
-                  
                   ],
                 ),
               ),
@@ -279,75 +283,71 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
               // Scrollable Content Below
               Expanded(
                 child: Column(
-                    children: [
-                      
-                      // SizedBox(height: 10.h),
-                      SizedBox(
-                        child: Container(
-                          width: double.infinity,
-                          child: TabBar(
-                            unselectedLabelColor: Colors.black87,
-                            isScrollable: false,
-                            onTap: (value) {
-                              indexx = value;
-                              setState(() {});
-                              print("$value valueeee");
-                            },
-                            controller: _tabController,
-                            labelColor: Color.fromARGB(255, 1, 77, 138),
-                            indicatorColor: Color.fromARGB(255, 1, 77, 138),
-                            labelStyle: TextStyle(
-                                color: Colors.black87,
-                                fontFamily: "NotoSans",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 32.sp),
-                            unselectedLabelStyle: TextStyle(
-                                color: Colors.black87,
-                                fontFamily: "NotoSans",
-                                fontWeight: FontWeight.w400,
-                                fontSize: 32.sp),
-                            tabs: ([
-                              "Active Trips (${providerTransporter.activeTrips.length})",
-                              "All Trips (${providerTransporter.allTrips.length})"
-                            ]).map((e) {
-                              return Container(
-                                child: Tab(text: e),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: indexx == 0
-                              ? providerTransporter.activeTrips.length
-                              : providerTransporter.allTrips.length,
-                          itemBuilder: (context, index) {
-                            return indexx == 0
-                                ? providerTransporter.activeTrips.isEmpty
-                                    ? SizedBox()
-                                    : customTile(
-                                        providerTransporter.activeTrips[index],
-                                        
-                                        context,
-                                        () {},
-                                        
-                                        "ACTIVE TRIPS LIST",
-                                        )
-                                : providerTransporter.allTrips.isEmpty
-                                    ? SizedBox()
-                                    : customTile(
-                                         providerTransporter.allTrips[index],
-                                        
-                                        context,
-                                        () {},
-                                        
-                                        "ALL TRIPS LIST",);
+                  children: [
+                    // SizedBox(height: 10.h),
+                    SizedBox(
+                      child: Container(
+                        width: double.infinity,
+                        child: TabBar(
+                          unselectedLabelColor: Colors.black87,
+                          isScrollable: false,
+                          onTap: (value) {
+                            indexx = value;
+                            setState(() {});
+                            print("$value valueeee");
                           },
+                          controller: _tabController,
+                          labelColor: Color.fromARGB(255, 1, 77, 138),
+                          indicatorColor: Color.fromARGB(255, 1, 77, 138),
+                          labelStyle: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: "NotoSans",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32.sp),
+                          unselectedLabelStyle: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: "NotoSans",
+                              fontWeight: FontWeight.w400,
+                              fontSize: 32.sp),
+                          tabs: ([
+                            "Active Trips (${providerTransporter.activeTrips.length})",
+                            "All Trips (${providerTransporter.allTrips.length})"
+                          ]).map((e) {
+                            return Container(
+                              child: Tab(text: e),
+                            );
+                          }).toList(),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: indexx == 0
+                            ? providerTransporter.activeTrips.length
+                            : providerTransporter.allTrips.length,
+                        itemBuilder: (context, index) {
+                          return indexx == 0
+                              ? providerTransporter.activeTrips.isEmpty
+                                  ? SizedBox()
+                                  : customTile(
+                                      providerTransporter.activeTrips[index],
+                                      context,
+                                      () {},
+                                      "ACTIVE TRIPS LIST",
+                                    )
+                              : providerTransporter.allTrips.isEmpty
+                                  ? SizedBox()
+                                  : customTile(
+                                      providerTransporter.allTrips[index],
+                                      context,
+                                      () {},
+                                      "ALL TRIPS LIST",
+                                    );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -452,7 +452,6 @@ class _ShipmentListScreenState extends State<RouteScreen>  with SingleTickerProv
       ],
     );
   }
- 
 
   Widget shipmentCard(TransporterIndent shipment) {
     return Container(
@@ -608,7 +607,6 @@ Widget iconText(IconData icons, String text,
 
 Widget customTile(
   ActiveTripModel document,
-  
   BuildContext context,
   final Function callback,
   String type,
@@ -703,7 +701,6 @@ Widget customTile(
                     ),
                     // SizedBox(height: 3.h),
 
-
                     Row(
                       children: [
                         Column(
@@ -721,7 +718,7 @@ Widget customTile(
                             SizedBox(
                               width: 320.w,
                               child: Text(
-                                 document.billQty,
+                                document.billQty,
                                 maxLines: 2,
                                 style: textFieldStyle(
                                   color: Color.fromARGB(255, 1, 77, 138),
@@ -759,11 +756,9 @@ Widget customTile(
                         ),
                       ],
                     ),
-                
-                
-                // SizedBox(height: 3.h),
-                
-                  
+
+                    // SizedBox(height: 3.h),
+
                     Row(
                       children: [
                         Column(
@@ -781,7 +776,7 @@ Widget customTile(
                             SizedBox(
                               width: 320.w,
                               child: Text(
-                                 document.invCnt,
+                                document.invCnt,
                                 maxLines: 2,
                                 style: textFieldStyle(
                                   color: Color.fromARGB(255, 1, 77, 138),
@@ -819,21 +814,13 @@ Widget customTile(
                         ),
                       ],
                     ),
-                
-                
-                
                   ],
                 ),
               ],
             ),
           ),
-
-          
-       
         ],
       ),
     ),
   );
 }
-
-

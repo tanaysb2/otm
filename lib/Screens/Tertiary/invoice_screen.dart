@@ -7,24 +7,22 @@ import 'package:jk_otm/Providers/auth_provider.dart';
 import 'package:jk_otm/Providers/tertiary_provider.dart';
 import 'package:jk_otm/Reusable%20components/loading.dart';
 import 'package:jk_otm/Reusable%20components/text_field.dart';
-import 'package:jk_otm/Screens/Tertiary/invoice_screen.dart';
 import 'package:jk_otm/Screens/landing_screen.dart';
 import 'package:jk_otm/main.dart';
-import 'package:jk_otm/models/active_trips_model.dart';
 import 'package:jk_otm/models/dealers_detail_tertiary_model.dart';
-import 'package:jk_otm/models/transporter_indents_model.dart';
 import 'package:provider/provider.dart';
 
-class DealersDetailScreen extends StatefulWidget {
-  final ActiveTripModel trip;
+class InvoiceScreen extends StatefulWidget {
+  final String tripId;
+  final String dealerCode;
 
-  DealersDetailScreen({super.key, required this.trip});
+  InvoiceScreen({super.key, required this.tripId, required this.dealerCode});
 
   @override
-  State<DealersDetailScreen> createState() => _ShipmentListScreenState();
+  State<InvoiceScreen> createState() => _ShipmentListScreenState();
 }
 
-class _ShipmentListScreenState extends State<DealersDetailScreen> {
+class _ShipmentListScreenState extends State<InvoiceScreen> {
   bool _isLoading = false;
   bool showDropdown = false;
   bool showProfileDropdown = false;
@@ -42,13 +40,15 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
     setState(() {
       _isLoading = true;
     });
-    Provider.of<TertiaryProvider>(context, listen: false)
-        .fetchTertiaryServiceProviderTrip(context, tripId: widget.trip.tripId)
-        .then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    log("tanay tripId: ${widget.tripId}");
+    log("tanay dealerCode: ${widget.dealerCode}");
+    // Provider.of<TertiaryProvider>(context, listen: false)
+    //     .fetchTertiaryServiceProviderTrip(context, tripId: widget.tripId)
+    //     .then((_) {
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // });
   }
 
   @override
@@ -137,7 +137,7 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
               Padding(
                 padding: EdgeInsets.only(left: 20.0.w),
                 child: Text(
-                  "Dealers Details - ${widget.trip.tripId}",
+                  "Dealers Details - ${widget.tripId}",
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -268,14 +268,13 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
   ) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return InvoiceScreen(
-                  tripId: document.tripId, dealerCode: document.kunnr);
-            },
-          ),
-        );
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) {
+        //       return DealersDetailScreen(trip: document);
+        //     },
+        //   ),
+        // );
       },
       child: Container(
         width: double.infinity,
