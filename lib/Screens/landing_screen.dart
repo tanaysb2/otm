@@ -26,18 +26,27 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   void initState() {
     super.initState();
+    _loadRoles();
+  }
+
+  Future<void> _loadRoles() async {
     setState(() {
       _isLoading = true;
     });
-    Provider.of<AuthProvider>(context, listen: false)
-        .getRolesAndModules(context)
-        .then((value) {
-      selectedRole = Provider.of<AuthProvider>(context, listen: false)
-          .userRoleResponse!
-          .data[0];
-      setState(() {
-        _isLoading = false;
-      });
+
+    await Provider.of<AuthProvider>(context, listen: false)
+        .getRolesAndModules(context);
+
+    if (!mounted) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final roles = authProvider.userRoleResponse?.data ?? [];
+    if (roles.isNotEmpty) {
+      selectedRole = roles.first;
+    }
+
+    setState(() {
+      _isLoading = false;
     });
   }
 
@@ -151,7 +160,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     crossAxisSpacing: 14.w,
                     childAspectRatio: 1,
                     children: [
-                      ...(selectedRole?.modules)!
+                      ...((selectedRole?.modules) ?? [])
                           .map((e) => HomepageGrid(
                               icon: e.code,
                               description: e.description,
@@ -243,8 +252,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         ),
                       ),
 
-                      ...(providerAuth.userRoleResponse)!
-                          .data
+                      ...(providerAuth.userRoleResponse?.data ?? [])
                           .map(
                             (e) => InkWell(
                               onTap: () async {
@@ -275,7 +283,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                     Text(
                                       e.description,
                                       style: textFieldStyle(
-                                          color: selectedRole!.description ==
+                                          color: selectedRole?.description ==
                                                   e.description
                                               ? Colors.blue
                                               : Colors.black,

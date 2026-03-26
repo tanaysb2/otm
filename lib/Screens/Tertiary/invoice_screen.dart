@@ -42,13 +42,14 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
     });
     log("tanay tripId: ${widget.tripId}");
     log("tanay dealerCode: ${widget.dealerCode}");
-    // Provider.of<TertiaryProvider>(context, listen: false)
-    //     .fetchTertiaryServiceProviderTrip(context, tripId: widget.tripId)
-    //     .then((_) {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // });
+    Provider.of<TertiaryProvider>(context, listen: false)
+        .fetchTertiaryServiceProviderTripDealer(context,
+            tripId: widget.tripId, dealerCode: widget.dealerCode)
+        .then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -134,23 +135,34 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                 ),
               ),
               SizedBox(height: 12.h),
-              Padding(
-                padding: EdgeInsets.only(left: 20.0.w),
-                child: Text(
-                  "Dealers Details - ${widget.tripId}",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32.sp,
-                  ),
-                ),
+              Builder(
+                builder: (context) {
+                  final data = providerTransporter.invoiceDetailResponse?.data;
+                  final kunnr = (data != null && data.isNotEmpty)
+                      ? data.first.kunnr
+                      : null;
+                  if (kunnr == null || kunnr.isEmpty) {
+                    return SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: EdgeInsets.only(left: 20.0.w),
+                    child: Text(
+                      "Delear Code - $kunnr",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32.sp,
+                      ),
+                    ),
+                  );
+                },
               ),
 
               // Scrollable Content Below
               Expanded(
                 child: Column(
                   children: [
-                    ...(providerTransporter.tripDetailDealersResponse?.data
+                    ...(providerTransporter.invoiceDetailResponse?.data
                             .map((e) => customTile(e, context, () {}, "")) ??
                         []),
                   ],
@@ -307,7 +319,7 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Trip ID",
+                            "Invoice No.",
                             style: textFieldStyle(
                               color: Colors.grey.shade800,
                               fontSize: 26.sp,
@@ -318,7 +330,7 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                           SizedBox(
                             width: 600.w,
                             child: Text(
-                              document.tripId,
+                              document.invNo,
                               maxLines: 2,
                               style: textFieldStyle(
                                 color: Color.fromARGB(255, 1, 77, 138),
@@ -332,13 +344,41 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                       ),
                       // SizedBox(width: 40.w),
 
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Invoice Date",
+                            style: textFieldStyle(
+                              color: Colors.grey.shade800,
+                              fontSize: 26.sp,
+                              weight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 3.h),
+                          SizedBox(
+                            width: 600.w,
+                            child: Text(
+                              document.invDt,
+                              maxLines: 2,
+                              style: textFieldStyle(
+                                color: Color.fromARGB(255, 1, 77, 138),
+                                fontSize: 28.sp,
+                                weight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                        ],
+                      ),
+
                       Row(
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Kunnr",
+                                "Delear Code",
                                 style: textFieldStyle(
                                   color: Colors.grey.shade800,
                                   fontSize: 26.sp,

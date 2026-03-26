@@ -63,4 +63,8 @@ class UrlHolderLoan {
   /// Tertiary: single trip by id (query: tripId)
   static const tertiaryServiceProviderTrip =
       "v1/tertiary/serviceprovider/trips/trip";
+
+  /// Tertiary: trip scoped to a dealer (query: tripId, dealerCode)
+  static const tertiaryServiceProviderTripDealer =
+      "v1/tertiary/serviceprovider/trips/trip/dealer";
 }

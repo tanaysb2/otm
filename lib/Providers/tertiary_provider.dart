@@ -27,6 +27,11 @@ class TertiaryProvider with ChangeNotifier {
   bool isLoadingTripDetail = false;
   String? tripDetailError;
 
+  /// GET tertiary trip for a specific [dealerCode] (same shape as trip detail).
+  DealersDetailResponse? invoiceDetailResponse;
+  bool isLoadingTripDealerDetail = false;
+  String? tripDealerDetailError;
+
   /// GET tertiary service provider depots.
   /// Parsed [RouteTertiaryResponse] is stored in [depotsResponse]; rows in [depots].
   Future<bool> fetchTertiaryServiceProviderDepots(BuildContext context) async {
@@ -216,6 +221,60 @@ class TertiaryProvider with ChangeNotifier {
       return false;
     } finally {
       isLoadingTripDetail = false;
+      notifyListeners();
+    }
+  }
+
+  /// GET tertiary service provider trip for [tripId] and [dealerCode].
+  /// Parsed [DealersDetailResponse] is stored in [tripDealerDetailResponse].
+  Future<bool> fetchTertiaryServiceProviderTripDealer(
+    BuildContext context, {
+    required String tripId,
+    required String dealerCode,
+  }) async {
+    isLoadingTripDealerDetail = true;
+    tripDealerDetailError = null;
+    notifyListeners();
+
+    final url =
+        '${UrlHolderLoan.baseUrl}${UrlHolderLoan.tertiaryServiceProviderTripDealer}'
+        '?tripId=${Uri.encodeQueryComponent(tripId)}'
+        '&dealerCode=${Uri.encodeQueryComponent(dealerCode)}';
+
+    try {
+      final response = await makeRequest(
+        url: url,
+        method: 'GET',
+        requiresAuth: true,
+        context: context,
+      );
+
+      if (response['success'] == true && response['data'] != null) {
+        final body = Map<String, dynamic>.from(response['data'] as Map);
+        final rawData = body['data'];
+        if (rawData != null && rawData is! List) {
+          if (rawData is Map) {
+            body['data'] = [rawData];
+          }
+        }
+        final parsed = DealersDetailResponse.fromJson(body);
+        invoiceDetailResponse = parsed;
+        notifyListeners();
+        return true;
+      } else {
+        tripDealerDetailError =
+            response['message'] as String? ?? 'Unable to fetch trip dealer';
+        showErrorToast(tripDealerDetailError!);
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      tripDealerDetailError = 'An error occurred while fetching trip dealer';
+      showErrorToast(tripDealerDetailError!);
+      notifyListeners();
+      return false;
+    } finally {
+      isLoadingTripDealerDetail = false;
       notifyListeners();
     }
   }

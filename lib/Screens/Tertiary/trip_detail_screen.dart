@@ -62,10 +62,10 @@ class _ShipmentListScreenState extends State<RouteScreen>
       }
       final loc = selectedAction ?? '';
       tp
-          .fetchTertiaryServiceProviderActiveTrips(context, location: "1111")
+          .fetchTertiaryServiceProviderActiveTrips(context, location: loc)
           .then((value) {
         tp
-            .fetchTertiaryServiceProviderAllTrips(context, location: "1111")
+            .fetchTertiaryServiceProviderAllTrips(context, location: loc)
             .then((value) {
           if (mounted) {
             setState(() {

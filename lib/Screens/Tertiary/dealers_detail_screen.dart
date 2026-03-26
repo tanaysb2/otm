@@ -339,7 +339,7 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Kunnr",
+                                "Delear Code",
                                 style: textFieldStyle(
                                   color: Colors.grey.shade800,
                                   fontSize: 26.sp,
@@ -348,7 +348,7 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
                               ),
                               SizedBox(height: 3.h),
                               SizedBox(
-                                width: 320.w,
+                                width: 250.w,
                                 child: Text(
                                   document.kunnr,
                                   maxLines: 2,
@@ -375,12 +375,17 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
                                 ),
                               ),
                               SizedBox(height: 3.h),
-                              Text(
-                                document.custName,
-                                style: textFieldStyle(
-                                  color: Color.fromARGB(255, 1, 77, 138),
-                                  fontSize: 28.sp,
-                                  weight: FontWeight.w700,
+                              SizedBox(
+                                width: 330.w,
+                                child: Text(
+                                  document.custName,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textFieldStyle(
+                                    color: Color.fromARGB(255, 1, 77, 138),
+                                    fontSize: 28.sp,
+                                    weight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                               SizedBox(height: 10.h),
@@ -406,7 +411,7 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
                               ),
                               SizedBox(height: 3.h),
                               SizedBox(
-                                width: 320.w,
+                                width: 250.w,
                                 child: Text(
                                   document.billQty,
                                   maxLines: 2,
@@ -464,7 +469,7 @@ class _ShipmentListScreenState extends State<DealersDetailScreen> {
                               ),
                               SizedBox(height: 3.h),
                               SizedBox(
-                                width: 320.w,
+                                width: 250.w,
                                 child: Text(
                                   document.invCnt,
                                   maxLines: 2,
