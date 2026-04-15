@@ -25,6 +25,8 @@ class _ShipmentListScreenState extends State<RouteScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   late ScrollController _controller;
+  final TextEditingController _activeSearchController = TextEditingController();
+  final TextEditingController _allSearchController = TextEditingController();
   bool _isLoading = false;
   bool showDropdown = false;
   bool showProfileDropdown = false;
@@ -34,6 +36,21 @@ class _ShipmentListScreenState extends State<RouteScreen>
   int indexx = 0;
   bool errorShow = false;
   int tab = 1;
+
+  List<ActiveTripModel> _filterTrips(
+    List<ActiveTripModel> trips,
+    String query,
+  ) {
+    final normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery.isEmpty) return trips;
+
+    return trips.where((trip) {
+      final tripId = trip.tripId.toLowerCase();
+      final routeName = trip.routeName.toLowerCase();
+      return tripId.contains(normalizedQuery) ||
+          routeName.contains(normalizedQuery);
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -78,9 +95,28 @@ class _ShipmentListScreenState extends State<RouteScreen>
   }
 
   @override
+  void dispose() {
+    _activeSearchController.dispose();
+    _allSearchController.dispose();
+    _tabController?.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final providerAuth = Provider.of<AuthProvider>(context);
     final providerTransporter = Provider.of<TertiaryProvider>(context);
+    final filteredActiveTrips = _filterTrips(
+      providerTransporter.activeTrips,
+      _activeSearchController.text,
+    );
+    final filteredAllTrips = _filterTrips(
+      providerTransporter.allTrips,
+      _allSearchController.text,
+    );
+    final isActiveTab = indexx == 0;
+    final visibleTrips = isActiveTab ? filteredActiveTrips : filteredAllTrips;
 
     return Stack(
       children: [
@@ -160,6 +196,7 @@ class _ShipmentListScreenState extends State<RouteScreen>
                 ),
               ),
               SizedBox(height: 12.h),
+
               Padding(
                 padding: EdgeInsets.only(left: 20.0.w),
                 child: Text(
@@ -257,6 +294,8 @@ class _ShipmentListScreenState extends State<RouteScreen>
                               log('Selected Location (LocCd): $value');
                               setState(() {
                                 selectedAction = value;
+
+                                _isLoading = true;
                               });
                               if (value != null) {
                                 await Provider.of<TertiaryProvider>(context,
@@ -270,6 +309,9 @@ class _ShipmentListScreenState extends State<RouteScreen>
                                         context,
                                         location: value);
                               }
+                              setState(() {
+                                _isLoading = false;
+                              });
                             },
                           ),
                         ),
@@ -320,30 +362,63 @@ class _ShipmentListScreenState extends State<RouteScreen>
                         ),
                       ),
                     ),
+                    SizedBox(height: 40.h),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: indexx == 0
-                            ? providerTransporter.activeTrips.length
-                            : providerTransporter.allTrips.length,
-                        itemBuilder: (context, index) {
-                          return indexx == 0
-                              ? providerTransporter.activeTrips.isEmpty
-                                  ? SizedBox()
-                                  : customTile(
-                                      providerTransporter.activeTrips[index],
-                                      context,
-                                      () {},
-                                      "ACTIVE TRIPS LIST",
-                                    )
-                              : providerTransporter.allTrips.isEmpty
-                                  ? SizedBox()
-                                  : customTile(
-                                      providerTransporter.allTrips[index],
-                                      context,
-                                      () {},
-                                      "ALL TRIPS LIST",
-                                    );
-                        },
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: TextField(
+                              controller: isActiveTab
+                                  ? _activeSearchController
+                                  : _allSearchController,
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                hintText: isActiveTab
+                                    ? "Search active trips by Trip ID or Route Name"
+                                    : "Search all trips by Trip ID or Route Name",
+                                prefixIcon: const Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                isDense: true,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: visibleTrips.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      (isActiveTab
+                                                  ? _activeSearchController.text
+                                                  : _allSearchController.text)
+                                              .trim()
+                                              .isEmpty
+                                          ? "No trips available"
+                                          : "No trips found",
+                                      style: textFieldStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 26.sp,
+                                        weight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    itemCount: visibleTrips.length,
+                                    itemBuilder: (context, index) {
+                                      return customTile(
+                                        visibleTrips[index],
+                                        context,
+                                        () {},
+                                        isActiveTab
+                                            ? "ACTIVE TRIPS LIST"
+                                            : "ALL TRIPS LIST",
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

@@ -195,132 +195,145 @@ class _LandingScreenState extends State<LandingScreen> {
           Positioned(
             top: 120.h,
             right: 16.w,
-            child: InkWell(
-              onTap: () {
-                // Prevent closing when tapping inside dropdown
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Show Profile Dropdown if open
-                    if (showProfileDropdown) ...[
-                      // Back button header
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 16.h),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom:
-                                BorderSide(color: Colors.grey[300]!, width: 1),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  showProfileDropdown = false;
-                                });
-                              },
-                              child:
-                                  Icon(Icons.arrow_back, color: Colors.black),
-                            ),
-                            SizedBox(width: 30.w),
-                            Text(
-                              "Select Role",
-                              style: textFieldStyle(
-                                color: Colors.black,
-                                fontSize: 28.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      ...(providerAuth.userRoleResponse?.data ?? [])
-                          .map(
-                            (e) => InkWell(
-                              onTap: () async {
-                                setState(() {
-                                  selectedRole = e;
-                                });
-
-                                await Future.delayed(
-                                    Duration(milliseconds: 150));
-                                setState(() {
-                                  showProfileDropdown = false;
-                                  showDropdown = false;
-                                });
-                                bool? canVibrate =
-                                    await Vibration.hasVibrator();
-
-                                if (canVibrate == true) {
-                                  Vibration.vibrate(
-                                      duration: 50); // 👈 1 second
-                                }
-                              },
-                              child: Container(
-                                width: 450.w,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 60.w, vertical: 16.h),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      e.description,
-                                      style: textFieldStyle(
-                                          color: selectedRole?.description ==
-                                                  e.description
-                                              ? Colors.blue
-                                              : Colors.black,
-                                          fontSize: 28.sp),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-
-                      // Profile options
-                    ] else ...[
-                      // Main menu
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            showProfileDropdown = true;
-                          });
-                        },
-                        child: iconText(
-                            Icons.person,
-                            check: true,
-                            selectedRole?.description ?? ""),
-                      ),
-                      Divider(height: 1),
-                      iconText(Icons.lock, "Change Password"),
-                      Divider(height: 1),
-                      InkWell(
-                        onTap: () async {
-                          await providerAuth.logout(context);
-                        },
-                        child: iconText(Icons.logout, "Sign Out", color: false),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width - 32.w,
+              ),
+              child: InkWell(
+                onTap: () {
+                  // Prevent closing when tapping inside dropdown
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
                     ],
-                  ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Show Profile Dropdown if open
+                      if (showProfileDropdown) ...[
+                        // Back button header
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.w, vertical: 16.h),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: Colors.grey[300]!, width: 1),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    showProfileDropdown = false;
+                                  });
+                                },
+                                child:
+                                    Icon(Icons.arrow_back, color: Colors.black),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Text(
+                                  "Select Role",
+                                  style: textFieldStyle(
+                                    color: Colors.black,
+                                    fontSize: 28.sp,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        ...(providerAuth.userRoleResponse?.data ?? [])
+                            .map(
+                              (e) => InkWell(
+                                onTap: () async {
+                                  setState(() {
+                                    selectedRole = e;
+                                  });
+
+                                  await Future.delayed(
+                                      Duration(milliseconds: 150));
+                                  setState(() {
+                                    showProfileDropdown = false;
+                                    showDropdown = false;
+                                  });
+                                  bool? canVibrate =
+                                      await Vibration.hasVibrator();
+
+                                  if (canVibrate == true) {
+                                    Vibration.vibrate(duration: 50);
+                                  }
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20.w, vertical: 16.h),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          e.description,
+                                          style: textFieldStyle(
+                                              color:
+                                                  selectedRole?.description ==
+                                                          e.description
+                                                      ? Colors.blue
+                                                      : Colors.black,
+                                              fontSize: 28.sp),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+
+                        // Profile options
+                      ] else ...[
+                        // Main menu
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              showProfileDropdown = true;
+                            });
+                          },
+                          child: iconText(
+                              Icons.person,
+                              check: true,
+                              selectedRole?.description ?? ""),
+                        ),
+                        Divider(height: 1),
+                        iconText(Icons.lock, "Change Password"),
+                        Divider(height: 1),
+                        InkWell(
+                          onTap: () async {
+                            await providerAuth.logout(context);
+                          },
+                          child:
+                              iconText(Icons.logout, "Sign Out", color: false),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -363,9 +376,15 @@ Widget iconText(IconData icons, String text,
           color: color ? Colors.black : Colors.red,
         ),
         SizedBox(width: 40.w),
-        Text(text,
+        Expanded(
+          child: Text(
+            text,
             style: textFieldStyle(
-                color: color ? Colors.black : Colors.red, fontSize: 28.sp)),
+                color: color ? Colors.black : Colors.red, fontSize: 28.sp),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         SizedBox(width: 20.w),
         if (check)
           Icon(

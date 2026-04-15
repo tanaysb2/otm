@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app uses your location for trip and delivery verification.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to capture delivery and invoice photos.</string>
 </dict>
 </plist>

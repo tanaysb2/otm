@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:jk_otm/Providers/auth_provider.dart';
 import 'package:jk_otm/Providers/tertiary_provider.dart';
 import 'package:jk_otm/Reusable%20components/loading.dart';
 import 'package:jk_otm/Reusable%20components/text_field.dart';
+import 'package:jk_otm/Screens/Tertiary/invoice_detail_screen.dart';
 import 'package:jk_otm/Screens/landing_screen.dart';
 import 'package:jk_otm/main.dart';
 import 'package:jk_otm/models/dealers_detail_tertiary_model.dart';
@@ -42,6 +44,7 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
     });
     log("tanay tripId: ${widget.tripId}");
     log("tanay dealerCode: ${widget.dealerCode}");
+
     Provider.of<TertiaryProvider>(context, listen: false)
         .fetchTertiaryServiceProviderTripDealer(context,
             tripId: widget.tripId, dealerCode: widget.dealerCode)
@@ -135,11 +138,23 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                 ),
               ),
               SizedBox(height: 12.h),
+              Padding(
+                padding: EdgeInsets.only(left: 20.0.w),
+                child: Text(
+                  "Dealer Details",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 40.sp,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.h),
               Builder(
                 builder: (context) {
                   final data = providerTransporter.invoiceDetailResponse?.data;
                   final kunnr = (data != null && data.isNotEmpty)
-                      ? data.first.kunnr
+                      ? data.first.custName
                       : null;
                   if (kunnr == null || kunnr.isEmpty) {
                     return SizedBox.shrink();
@@ -147,20 +162,21 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                   return Padding(
                     padding: EdgeInsets.only(left: 20.0.w),
                     child: Text(
-                      "Delear Code - $kunnr",
+                      "Dealer Name : $kunnr",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 32.sp,
+                        fontSize: 30.sp,
                       ),
                     ),
                   );
                 },
               ),
 
-              // Scrollable Content Below
+              // Scrollable content; footer below stays pinned to screen bottom
               Expanded(
-                child: Column(
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: 8.h),
                   children: [
                     ...(providerTransporter.invoiceDetailResponse?.data
                             .map((e) => customTile(e, context, () {}, "")) ??
@@ -280,13 +296,13 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
   ) {
     return InkWell(
       onTap: () {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (context) {
-        //       return DealersDetailScreen(trip: document);
-        //     },
-        //   ),
-        // );
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return InvoiceDetailScreen(trip: document);
+            },
+          ),
+        );
       },
       child: Container(
         width: double.infinity,
@@ -372,61 +388,61 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                         ],
                       ),
 
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Delear Code",
-                                style: textFieldStyle(
-                                  color: Colors.grey.shade800,
-                                  fontSize: 26.sp,
-                                  weight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(height: 3.h),
-                              SizedBox(
-                                width: 320.w,
-                                child: Text(
-                                  document.kunnr,
-                                  maxLines: 2,
-                                  style: textFieldStyle(
-                                    color: Color.fromARGB(255, 1, 77, 138),
-                                    fontSize: 28.sp,
-                                    weight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 10.h),
-                            ],
-                          ),
-                          SizedBox(width: 40.w),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Customer Name",
-                                style: textFieldStyle(
-                                  color: Colors.grey.shade800,
-                                  fontSize: 26.sp,
-                                  weight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(height: 3.h),
-                              Text(
-                                document.custName,
-                                style: textFieldStyle(
-                                  color: Color.fromARGB(255, 1, 77, 138),
-                                  fontSize: 28.sp,
-                                  weight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(height: 10.h),
-                            ],
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      //         Text(
+                      //           "Delear Code",
+                      //           style: textFieldStyle(
+                      //             color: Colors.grey.shade800,
+                      //             fontSize: 26.sp,
+                      //             weight: FontWeight.w500,
+                      //           ),
+                      //         ),
+                      //         SizedBox(height: 3.h),
+                      //         SizedBox(
+                      //           width: 200.w,
+                      //           child: Text(
+                      //             document.kunnr,
+                      //             maxLines: 2,
+                      //             style: textFieldStyle(
+                      //               color: Color.fromARGB(255, 1, 77, 138),
+                      //               fontSize: 28.sp,
+                      //               weight: FontWeight.w700,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //         SizedBox(height: 10.h),
+                      //       ],
+                      //     ),
+                      //     SizedBox(width: 40.w),
+                      //     Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      //         Text(
+                      //           "Customer Name",
+                      //           style: textFieldStyle(
+                      //             color: Colors.grey.shade800,
+                      //             fontSize: 26.sp,
+                      //             weight: FontWeight.w500,
+                      //           ),
+                      //         ),
+                      //         SizedBox(height: 3.h),
+                      //         Text(
+                      //           document.custName,
+                      //           style: textFieldStyle(
+                      //             color: Color.fromARGB(255, 1, 77, 138),
+                      //             fontSize: 28.sp,
+                      //             weight: FontWeight.w700,
+                      //           ),
+                      //         ),
+                      //         SizedBox(height: 10.h),
+                      //       ],
+                      //     ),
+                      //   ],
+                      // ),
 
                       // SizedBox(height: 3.h),
 
@@ -445,7 +461,7 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                               ),
                               SizedBox(height: 3.h),
                               SizedBox(
-                                width: 320.w,
+                                width: 200.w,
                                 child: Text(
                                   document.billQty,
                                   maxLines: 2,
@@ -503,7 +519,7 @@ class _ShipmentListScreenState extends State<InvoiceScreen> {
                               ),
                               SizedBox(height: 3.h),
                               SizedBox(
-                                width: 320.w,
+                                width: 200.w,
                                 child: Text(
                                   document.invCnt,
                                   maxLines: 2,

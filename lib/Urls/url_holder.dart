@@ -67,4 +67,12 @@ class UrlHolderLoan {
   /// Tertiary: trip scoped to a dealer (query: tripId, dealerCode)
   static const tertiaryServiceProviderTripDealer =
       "v1/tertiary/serviceprovider/trips/trip/dealer";
+
+  /// Tertiary: dealer invoice for a trip (query: tripId, dealerCode, invoiceNo)
+  static const tertiaryServiceProviderTripDealerInvoice =
+      "v1/tertiary/serviceprovider/trips/trip/dealer/invoice";
+
+  /// Tertiary: dealer document upload pre-signed URL
+  static const tertiaryServiceProviderTripDealerDocumentUploadUrl =
+      "v1/tertiary/serviceprovider/trips/trip/dealer/documents/upload-url";
 }

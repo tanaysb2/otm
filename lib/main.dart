@@ -75,6 +75,9 @@ class _NavigationState extends State<NavigationScreen> {
     String? jktyreEtmsS = prefs.getString('jktyre_etms_s');
     String? jktyreEtmsL = prefs.getString('jktyre_etms_l');
 
+    // jktyreEtmsS = null;
+    // jktyreEtmsL = null;
+
     log('$jktyreEtmsS sapppp');
     log('$jktyreEtmsL sapppp');
 
