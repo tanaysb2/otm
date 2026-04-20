@@ -108,7 +108,6 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
       final tertiaryProvider =
           Provider.of<TertiaryProvider>(context, listen: false);
       final bytes = await picked.readAsBytes();
-      final contentType = picked.mimeType ?? 'image/jpeg';
 
       final urlOk = await tertiaryProvider
           .fetchTertiaryServiceProviderTripDealerDocumentUploadUrl(

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,7 +10,6 @@ import 'package:jk_otm/Screens/landing_screen.dart';
 import 'package:jk_otm/main.dart';
 import 'package:jk_otm/models/active_trips_model.dart';
 import 'package:jk_otm/models/dealers_detail_tertiary_model.dart';
-import 'package:jk_otm/models/transporter_indents_model.dart';
 import 'package:provider/provider.dart';
 
 class DealersDetailScreen extends StatefulWidget {

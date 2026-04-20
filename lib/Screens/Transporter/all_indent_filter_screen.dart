@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,11 +6,8 @@ import 'package:jk_otm/Providers/transporter_provider.dart';
 import 'package:jk_otm/Reusable%20components/loading.dart';
 import 'package:jk_otm/Reusable%20components/text_field.dart';
 import 'package:jk_otm/main.dart';
-import 'package:jk_otm/models/driver_license_model.dart';
 import 'package:jk_otm/models/transporter_indents_model.dart';
-import 'package:jk_otm/models/vehicle_number_model.dart';
 import 'package:provider/provider.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 
 class AllIndentFilterScreen extends StatefulWidget {
   const AllIndentFilterScreen({super.key});
@@ -409,4 +404,3 @@ Widget iconText(IconData icons, String text,
     ),
   );
 }
- 
