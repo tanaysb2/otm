@@ -50,6 +50,43 @@ class TertiaryProvider with ChangeNotifier {
   bool isUploadingDocumentBinary = false;
   String? documentBinaryUploadError;
 
+  /// After a successful upload-url call, [documentName] for each [documentId] ("1","2",…).
+  final Map<String, String> _documentNamesByDocumentId = <String, String>{};
+
+  Map<String, String> get documentNamesByDocumentId =>
+      Map<String, String>.unmodifiable(_documentNamesByDocumentId);
+
+  bool isLoadingDealerDeliveriesComplete = false;
+  String? dealerDeliveriesCompleteError;
+
+  /// Clears names keyed by [documentId] (e.g. when opening a new invoice).
+  void clearDocumentNamesByDocumentId() {
+    _documentNamesByDocumentId.clear();
+    notifyListeners();
+  }
+
+  /// [documentId] is the API id string (e.g. `"1"`). [slotIndex] is 0-based (Photo 1 → 0).
+  String? documentNameForSlot(int slotIndex) {
+    if (slotIndex < 0) return null;
+    return _documentNamesByDocumentId['${slotIndex + 1}'];
+  }
+
+  /// Non-empty [documentName] values ordered by document id "1", "2", "3", …
+  List<String> documentNamesOrderedByDocumentId() {
+    final keys = _documentNamesByDocumentId.keys.toList()
+      ..sort((a, b) {
+        final ia = int.tryParse(a) ?? 0;
+        final ib = int.tryParse(b) ?? 0;
+        return ia.compareTo(ib);
+      });
+    final out = <String>[];
+    for (final k in keys) {
+      final v = _documentNamesByDocumentId[k];
+      if (v != null && v.isNotEmpty) out.add(v);
+    }
+    return out;
+  }
+
   /// GET tertiary service provider depots.
   /// Parsed [RouteTertiaryResponse] is stored in [depotsResponse]; rows in [depots].
   Future<bool> fetchTertiaryServiceProviderDepots(BuildContext context) async {
@@ -121,8 +158,9 @@ class TertiaryProvider with ChangeNotifier {
         final parsed = ActiveTripsResponse.fromJson(
           Map<String, dynamic>.from(response['data'] as Map),
         );
+
         activeTripsResponse = parsed;
-        activeTrips = parsed.data ?? [];
+        activeTrips = parsed.data;
         notifyListeners();
         return true;
       } else {
@@ -170,7 +208,7 @@ class TertiaryProvider with ChangeNotifier {
           Map<String, dynamic>.from(response['data'] as Map),
         );
         allTripsResponse = parsed;
-        allTrips = parsed.data ?? [];
+        allTrips = parsed.data;
         notifyListeners();
         return true;
       } else {
@@ -372,7 +410,7 @@ class TertiaryProvider with ChangeNotifier {
     BuildContext context, {
     required String tripId,
     required String dealerCode,
-    // required String documentId,
+    required String documentId,
     required String latitude,
     required String longitude,
     required List<int> bytes,
@@ -393,7 +431,7 @@ class TertiaryProvider with ChangeNotifier {
         body: {
           'tripId': tripId,
           'dealerCode': dealerCode,
-          'documentId': '1',
+          'documentId': documentId,
           'latitude': latitude,
           'longitude': longitude,
         },
@@ -405,6 +443,10 @@ class TertiaryProvider with ChangeNotifier {
           final data = Map<String, dynamic>.from(body['data'] as Map);
           documentUploadPresignedUrl = data['presignedUrl'] as String?;
           documentUploadName = data['documentName'] as String?;
+          final name = documentUploadName;
+          if (name != null && name.isNotEmpty) {
+            _documentNamesByDocumentId[documentId] = name;
+          }
 
           log('tanay documentUploadPresignedUrl: $documentUploadPresignedUrl');
           log('tanay documentUploadName: $documentUploadName');
@@ -432,6 +474,70 @@ class TertiaryProvider with ChangeNotifier {
       return false;
     } finally {
       isLoadingDocumentUploadUrl = false;
+      notifyListeners();
+    }
+  }
+
+  /// POST dealer deliveries complete — same contract as ETMS
+  /// `documents` + `tripId` + `dealerCode`.
+  ///
+  /// Prefer [documents] from [documentNamesOrderedByDocumentId] after uploads.
+  Future<bool> fetchTertiaryServiceProviderTripDealerDeliveriesComplete(
+    BuildContext context, {
+    required String tripId,
+    required String dealerCode,
+    required List<String> documents,
+  }) async {
+    isLoadingDealerDeliveriesComplete = true;
+    dealerDeliveriesCompleteError = null;
+    notifyListeners();
+
+    final url =
+        '${UrlHolderLoan.baseUrl}${UrlHolderLoan.tertiaryServiceProviderTripDealerDeliveriesComplete}';
+
+    try {
+      final response = await makeRequest(
+        url: url,
+        method: 'POST',
+        requiresAuth: true,
+        context: context,
+        body: {
+          'documents': documents,
+          'tripId': tripId,
+          'dealerCode': dealerCode,
+        },
+      );
+
+      if (response['success'] == true && response['data'] != null) {
+        final raw = response['data'];
+        if (raw is Map<String, dynamic>) {
+          final innerSuccess = raw['success'];
+          if (innerSuccess == false) {
+            dealerDeliveriesCompleteError =
+                raw['message'] as String? ?? 'Unable to complete delivery';
+            showErrorToast(dealerDeliveriesCompleteError!);
+            notifyListeners();
+            return false;
+          }
+        }
+        showSuccessToast('Mark as complete successfully');
+        notifyListeners();
+        return true;
+      }
+
+      dealerDeliveriesCompleteError =
+          response['message'] as String? ?? 'Unable to complete delivery';
+      showErrorToast(dealerDeliveriesCompleteError!);
+      notifyListeners();
+      return false;
+    } catch (e) {
+      dealerDeliveriesCompleteError =
+          'An error occurred while completing delivery';
+      showErrorToast(dealerDeliveriesCompleteError!);
+      notifyListeners(); 
+      return false;
+    } finally {
+      isLoadingDealerDeliveriesComplete = false;
       notifyListeners();
     }
   }

@@ -75,4 +75,8 @@ class UrlHolderLoan {
   /// Tertiary: dealer document upload pre-signed URL
   static const tertiaryServiceProviderTripDealerDocumentUploadUrl =
       "v1/tertiary/serviceprovider/trips/trip/dealer/documents/upload-url";
+
+  /// Tertiary: mark dealer deliveries complete (body: documents, tripId, dealerCode)
+  static const tertiaryServiceProviderTripDealerDeliveriesComplete =
+      "v1/tertiary/serviceprovider/trips/trip/dealer/deliveries/complete";
 }

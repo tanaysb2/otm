@@ -34,7 +34,9 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
   double? currentLongitude;
   String? selectedAction;
   final ImagePicker _imagePicker = ImagePicker();
-  final List<XFile> _selectedImages = [];
+
+  /// Up to three attachment images, one per slot below the picker UI.
+  final List<XFile?> _imageSlots = <XFile?>[null, null, null];
 
   int indexx = 0;
   bool errorShow = false;
@@ -47,6 +49,8 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
     setState(() {
       _isLoading = true;
     });
+    Provider.of<TertiaryProvider>(context, listen: false)
+        .clearDocumentNamesByDocumentId();
     Provider.of<TertiaryProvider>(context, listen: false)
         .fetchTertiaryServiceProviderTripDealerInvoice(context,
             tripId: widget.trip.tripId,
@@ -96,8 +100,61 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
     }
   }
 
-  /// Opens the device camera. Each capture adds one image; tap again for more.
-  Future<void> _capturePhotoFromCamera() async {
+  void _showImageSourceBottomSheet(int slotIndex) {
+    if (slotIndex < 0 || slotIndex >= _imageSlots.length) return;
+    showModalBottomSheet<void>(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.camera_alt, size: 28.sp),
+                  title: Text(
+                    'Take photo',
+                    style: textFieldStyle(
+                      color: Colors.black,
+                      fontSize: 26.sp,
+                      weight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _capturePhotoFromCamera(slotIndex);
+                  },
+                ),
+                Divider(height: 1.h),
+                ListTile(
+                  leading: Icon(Icons.photo_library, size: 28.sp),
+                  title: Text(
+                    'Gallery',
+                    style: textFieldStyle(
+                      color: Colors.black,
+                      fontSize: 26.sp,
+                      weight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickPhotoFromGallery(slotIndex);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Opens the device camera for [slotIndex] (0..2).
+  Future<void> _capturePhotoFromCamera(int slotIndex) async {
     try {
       final picked = await _imagePicker.pickImage(
         source: ImageSource.camera,
@@ -109,42 +166,54 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
           Provider.of<TertiaryProvider>(context, listen: false);
       final bytes = await picked.readAsBytes();
 
+      final documentId = '${slotIndex + 1}';
       final urlOk = await tertiaryProvider
           .fetchTertiaryServiceProviderTripDealerDocumentUploadUrl(
         context,
         tripId: widget.trip.tripId,
         bytes: bytes,
         dealerCode: widget.trip.kunnr,
+        documentId: documentId,
         latitude: (currentLatitude ?? 0).toString(),
         longitude: (currentLongitude ?? 0).toString(),
       );
       if (!mounted || !urlOk) return;
 
-      // final uploadResult =
-      //     await tertiaryProvider.uploadDocumentBinaryToPresignedUrl(
-      //   bytes: bytes,
-      //   contentType: contentType,
-      // );
-      // if (!mounted || !uploadResult.ok) return;
-
       setState(() {
-        _selectedImages.add(picked);
+        _imageSlots[slotIndex] = picked;
       });
     } catch (e, st) {
       log('invoice_detail_screen: camera error: $e', stackTrace: st);
     }
   }
 
-  /// Opens gallery and appends one selected image to the same list.
-  Future<void> _pickPhotoFromGallery() async {
+  /// Opens gallery for [slotIndex] (0..2).
+  Future<void> _pickPhotoFromGallery(int slotIndex) async {
     try {
       final picked = await _imagePicker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
       );
       if (!mounted || picked == null) return;
+
+      final tertiaryProvider =
+          Provider.of<TertiaryProvider>(context, listen: false);
+      final bytes = await picked.readAsBytes();
+      final documentId = '${slotIndex + 1}';
+      final urlOk = await tertiaryProvider
+          .fetchTertiaryServiceProviderTripDealerDocumentUploadUrl(
+        context,
+        tripId: widget.trip.tripId,
+        bytes: bytes,
+        dealerCode: widget.trip.kunnr,
+        documentId: documentId,
+        latitude: (currentLatitude ?? 0).toString(),
+        longitude: (currentLongitude ?? 0).toString(),
+      );
+      if (!mounted || !urlOk) return;
+
       setState(() {
-        _selectedImages.add(picked);
+        _imageSlots[slotIndex] = picked;
       });
     } catch (e, st) {
       log('invoice_detail_screen: gallery error: $e', stackTrace: st);
@@ -306,123 +375,130 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _capturePhotoFromCamera,
-                            icon: Icon(Icons.camera_alt,
-                                size: 24.sp, color: Colors.black),
-                            label: Text(
-                              "Take Photo",
-                              style: textFieldStyle(
-                                color: Colors.black,
-                                fontSize: 24.sp,
-                                weight: FontWeight.w700,
-                              ),
+                      children: List.generate(3, (index) {
+                        final image = _imageSlots[index];
+                        return Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              right: index < 2 ? 10.w : 0,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 18.h),
-                              backgroundColor: const Color(0xffFFEB00),
-                              shape: RoundedRectangleBorder(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _showImageSourceBottomSheet(index),
                                 borderRadius: BorderRadius.circular(8.r),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _pickPhotoFromGallery,
-                            icon: Icon(Icons.photo_library,
-                                size: 24.sp, color: Colors.black),
-                            label: Text(
-                              "Gallery",
-                              style: textFieldStyle(
-                                color: Colors.black,
-                                fontSize: 24.sp,
-                                weight: FontWeight.w700,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 18.h),
-                              backgroundColor: const Color(0xffFFEB00),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_selectedImages.isNotEmpty) ...[
-                      SizedBox(height: 12.h),
-                      SizedBox(
-                        height: 120.h,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _selectedImages.length,
-                          separatorBuilder: (_, __) => SizedBox(width: 10.w),
-                          itemBuilder: (context, index) {
-                            final image = _selectedImages[index];
-                            return Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                GestureDetector(
-                                  onTap: () => _openImageFullScreen(image.path),
-                                  child: Container(
-                                    width: 120.w,
-                                    height: 120.h,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      border: Border.all(
-                                          color: Colors.grey.shade400),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      child: Image.file(
-                                        File(image.path),
-                                        fit: BoxFit.cover,
-                                      ),
+                                child: Container(
+                                  height: 110.h,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffFFEB00)
+                                        .withOpacity(0.35),
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                      color: Colors.grey.shade500,
+                                      width: 1,
                                     ),
                                   ),
-                                ),
-                                Positioned(
-                                  right: -12.w,
-                                  top: -12.h,
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedImages.removeAt(index);
-                                      });
-                                    },
-                                    child: SizedBox(
-                                      width: 52.w,
-                                      height: 52.h,
-                                      child: Center(
-                                        child: Container(
-                                          width: 40.w,
-                                          height: 40.h,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 24.sp,
-                                          ),
+                                  child: image == null
+                                      ? Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons
+                                                  .add_photo_alternate_outlined,
+                                              size: 36.sp,
+                                              color: Colors.black87,
+                                            ),
+                                            SizedBox(height: 6.h),
+                                            Text(
+                                              'Photo ${index + 1}',
+                                              textAlign: TextAlign.center,
+                                              style: textFieldStyle(
+                                                color: Colors.black87,
+                                                fontSize: 20.sp,
+                                                weight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Stack(
+                                          clipBehavior: Clip.none,
+                                          fit: StackFit.expand,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    _openImageFullScreen(
+                                                        image.path),
+                                                child: Image.file(
+                                                  File(image.path),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              left: 0,
+                                              right: 0,
+                                              bottom: 0,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.vertical(
+                                                  bottom: Radius.circular(8.r),
+                                                ),
+                                                child: Material(
+                                                  color: Colors.black
+                                                      .withOpacity(0.55),
+                                                  child: InkWell(
+                                                    onTap: () =>
+                                                        _showImageSourceBottomSheet(
+                                                            index),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                        vertical: 8.h,
+                                                        horizontal: 4.w,
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .photo_camera_back_outlined,
+                                                            color: Colors.white,
+                                                            size: 18.sp,
+                                                          ),
+                                                          SizedBox(width: 6.w),
+                                                          Text(
+                                                            'Select again',
+                                                            style:
+                                                                textFieldStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 18.sp,
+                                                              weight: FontWeight
+                                                                  .w600,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ),
-                                  ),
                                 ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
                   ],
                 ),
               ),
@@ -444,14 +520,28 @@ class _ShipmentListScreenState extends State<InvoiceDetailScreen> {
                     borderRadius: BorderRadius.circular(8)),
                 child: InkWell(
                   onTap: () async {
-                    if (currentLatitude != null && currentLongitude != null) {
-                      log(
-                        'Mark as completed — lat: $currentLatitude, lng: $currentLongitude',
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    try {
+                      final ok = await providerTransporter
+                          .fetchTertiaryServiceProviderTripDealerDeliveriesComplete(
+                        context,
+                        tripId: widget.trip.tripId,
+                        dealerCode: widget.trip.kunnr,
+                        documents: providerTransporter
+                            .documentNamesOrderedByDocumentId(),
                       );
-                    } else {
-                      log(
-                        'Mark as completed — location not yet available (check permissions / GPS)',
-                      );
+                      if (!mounted) return;
+                      if (ok) {
+                        Navigator.of(context).pop();
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
                     }
                   },
                   child: Row(
