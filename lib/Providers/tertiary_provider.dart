@@ -534,7 +534,7 @@ class TertiaryProvider with ChangeNotifier {
       dealerDeliveriesCompleteError =
           'An error occurred while completing delivery';
       showErrorToast(dealerDeliveriesCompleteError!);
-      notifyListeners(); 
+      notifyListeners();
       return false;
     } finally {
       isLoadingDealerDeliveriesComplete = false;
